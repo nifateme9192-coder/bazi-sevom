@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>بازی ماشین ورودی و خروجی - سوم</title>
+<style>
+body{font-family:Tahoma,Arial,sans-serif;margin:0;background:linear-gradient(#dff5ff,#fff7d6);text-align:center;color:#24324a}
+.wrap{max-width:650px;margin:auto;padding:18px}
+.card{background:white;border-radius:24px;padding:22px;box-shadow:0 8px 25px #0002}
+h1{font-size:28px;margin:8px}.sub{font-size:17px}
+.machine{margin:18px auto;padding:18px;border:5px dashed #7bb8e8;border-radius:22px;background:#eef9ff}
+.row{display:flex;justify-content:center;gap:12px;align-items:center;flex-wrap:wrap}
+.box{padding:14px 20px;border-radius:16px;background:#fff;border:2px solid #9cc7e8;font-size:25px;min-width:80px}
+.arrow{font-size:28px}.rule{font-size:24px;font-weight:bold}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+button{border:0;border-radius:16px;padding:15px;font-size:20px;background:#79c7ff;color:#17324d;cursor:pointer}
+button:active{transform:scale(.97)}button:disabled{opacity:.65}
+#msg{min-height:34px;font-size:21px;font-weight:bold;margin:14px}
+.score{font-size:20px}.stars{font-size:25px;min-height:32px}
+.small{font-size:14px;color:#667}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+<h1>🚂 بازی ماشین ورودی و خروجی</h1>
+<div class="sub">پایه سوم دبستان • با لمس گزینه درست جواب بده!</div>
+<div class="score">سؤال <span id="num">1</span> از 10 | امتیاز: <span id="score">0</span></div>
+<div class="stars" id="stars">⭐</div>
+<div class="machine">
+<div class="row"><div class="box" id="input">—</div><div class="arrow">➡️</div><div class="box rule" id="rule">ماشین</div><div class="arrow">➡️</div><div class="box" id="output">؟</div></div>
+</div>
+<div id="msg"></div>
+<div class="answers" id="answers"></div>
+<button id="next" style="display:none;background:#8ee09a" onclick="nextQ()">سؤال بعدی ➜</button>
+<div id="finish" style="display:none">
+<h2>🎉 آفرین! بازی تمام شد 🎉</h2>
+<p>امتیاز نهایی: <b id="final"></b> از 100</p>
+<p>⭐ نتیجه‌ات را به معلمت نشان بده.</p>
+</div>
+<p class="small">طراح: فاطمه رییسی</p>
+</div></div>
+<script>
+const qs=[
+[2,3,6],[4,2,8],[5,3,15],[6,2,12],[7,3,21],
+[8,2,16],[9,2,18],[3,4,12],[10,2,20],[6,3,18]
+];
+let i=0,score=0,locked=false;
+function render(){
+ locked=false; document.getElementById('num').textContent=i+1;
+ document.getElementById('input').textContent=qs[i][0];
+ document.getElementById('rule').textContent='× '+qs[i][1];
+ document.getElementById('output').textContent='؟';
+ document.getElementById('msg').textContent='';
+ document.getElementById('next').style.display='none';
+ const correct=qs[i][2], opts=new Set([correct]);
+ while(opts.size<4){let n=correct+([ -6,-3,3,6,2,-2][Math.floor(Math.random()*6)]); if(n>0)opts.add(n)}
+ const arr=[...opts].sort(()=>Math.random()-.5);
+ document.getElementById('answers').innerHTML='';
+ arr.forEach(n=>{
+   const b=document.createElement('button'); b.textContent=n;
+   b.onclick=()=>answer(n,b); document.getElementById('answers').appendChild(b);
+ });
+}
+function answer(n,b){
+ if(locked)return; locked=true;
+ document.querySelectorAll('#answers button').forEach(x=>x.disabled=true);
+ document.getElementById('output').textContent=n;
+ if(n===qs[i][2]){score+=10;document.getElementById('msg').textContent='🌟 آفرین! جواب درست است!';}
+ else document.getElementById('msg').textContent='💪 تلاش خوبی بود! جواب درست: '+qs[i][2];
+ document.getElementById('score').textContent=score;
+ document.getElementById('stars').textContent='⭐'.repeat(Math.max(1,Math.min(5,Math.floor(score/20)+1)));
+ if(i<9)document.getElementById('next').style.display='inline-block';
+ else {document.getElementById('finish').style.display='block';document.getElementById('final').textContent=score;}
+}
+function nextQ(){i++;render()}
+render();
+</script>
+</body></html>
