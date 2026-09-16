@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>بازی الگوها - کلاس سوم</title>
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:Tahoma,Arial,sans-serif;background:linear-gradient(135deg,#fff4c7,#dff7ff);min-height:100vh;color:#263238}
+.container{max-width:720px;margin:auto;padding:18px}
+.card{background:#fff;border-radius:28px;padding:24px;box-shadow:0 8px 25px #0002;text-align:center}
+h1{color:#7b3fb5;margin:8px 0 4px;font-size:30px}.designer{color:#666;margin-bottom:18px}
+#start button,.answer{border:0;border-radius:18px;padding:17px 20px;font-size:20px;font-weight:bold;cursor:pointer;margin:8px;min-width:220px;box-shadow:0 4px 0 #0002}
+#start button{background:#8ed1fc}.answer{background:#f4d35e}
+.answer:active,#start button:active{transform:translateY(3px);box-shadow:none}
+.hidden{display:none}.top{display:flex;justify-content:space-between;gap:10px;font-size:18px;font-weight:bold;margin-bottom:16px}
+.progress{height:12px;background:#eee;border-radius:10px;overflow:hidden;margin-bottom:20px}.bar{height:100%;background:#7ed957;width:0%;transition:.3s}
+.pattern{font-size:38px;letter-spacing:7px;background:#f8f5ff;border-radius:20px;padding:22px;margin:15px 0;line-height:1.6}
+.question{font-size:22px;font-weight:bold;margin:12px 0}
+#feedback{min-height:34px;font-size:22px;font-weight:bold;margin-top:8px}
+.star{font-size:28px;letter-spacing:5px;color:#f5b400}
+.small{font-size:16px;color:#666}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="card" id="start">
+  <div style="font-size:64px">🌈⭐🔷</div>
+  <h1>بازی شیرینِ الگوها</h1>
+  <div class="designer">طراح: خانم فاطمه رئیسی</div>
+  <p>هر سؤال را بخوان و با کلیک روی جواب درست، ستاره بگیر!</p>
+  <button onclick="startGame()">شروع بازی 🎮</button>
+</div>
+
+<div class="card hidden" id="game">
+  <div class="top"><span id="qnum"></span><span>امتیاز: <b id="score">0</b> ⭐</span></div>
+  <div class="progress"><div class="bar" id="bar"></div></div>
+  <div class="question">الگو را نگاه کن و جای علامت ❓ را پیدا کن:</div>
+  <div class="pattern" id="pattern"></div>
+  <div id="answers"></div>
+  <div id="feedback"></div>
+</div>
+
+<div class="card hidden" id="end">
+  <div style="font-size:70px">🏆⭐🎉</div>
+  <h1>آفرین! بازی تمام شد</h1>
+  <p id="final" style="font-size:24px"></p>
+  <div class="star">⭐⭐⭐⭐⭐</div>
+  <button onclick="startGame()" style="border:0;border-radius:18px;padding:16px 28px;font-size:20px;background:#8ed1fc;cursor:pointer">دوباره بازی کن 🔄</button>
+  <p class="small">طراح: خانم فاطمه رئیسی</p>
+</div>
+</div>
+
+<script>
+const qs=[
+["۲، ۴، ۶، ۸، ❓","۱۰",["۹","۱۰","۱۲"]],
+["۵، ۱۰، ۱۵، ۲۰، ❓","۲۵",["۲۲","۲۵","۳۰"]],
+["۱، ۳، ۵، ۷، ❓","۹",["۸","۹","۱۱"]],
+["۱۰، ۲۰، ۳۰، ۴۰، ❓","۵۰",["۴۵","۵۰","۶۰"]],
+["۳، ۶، ۹، ۱۲، ❓","۱۵",["۱۴","۱۵","۱۸"]],
+["۲۰، ۱۸، ۱۶، ۱۴، ❓","۱۲",["۱۰","۱۲","۱۳"]],
+["۱، ۴، ۷، ۱۰، ❓","۱۳",["۱۲","۱۳","۱۴"]],
+["۲، ۶، ۱۰، ۱۴، ❓","۱۸",["۱۶","۱۸","۲۰"]],
+["۳۰، ۲۵، ۲۰، ۱۵، ❓","۱۰",["۵","۱۰","۱۵"]],
+["۴، ۸، ۱۲، ۱۶، ❓","۲۰",["۱۸","۲۰","۲۴"]],
+["⭐ 🔵 ⭐ 🔵 ❓","⭐",["🔵","⭐","🟢"]],
+["🔺 🔺 🟢 🔺 🔺 ❓","🟢",["🔺","🟢","🔵"]]
+];
+let i=0,score=0,locked=false;
+function startGame(){i=0;score=0;document.getElementById("start").classList.add("hidden");document.getElementById("end").classList.add("hidden");document.getElementById("game").classList.remove("hidden");showQ()}
+function showQ(){
+ locked=false;let q=qs[i];document.getElementById("qnum").textContent=`سؤال ${i+1} از ${qs.length}`;
+ document.getElementById("score").textContent=score;document.getElementById("bar").style.width=((i)/qs.length*100)+"%";
+ document.getElementById("pattern").textContent=q[0];document.getElementById("feedback").textContent="";
+ let a=document.getElementById("answers");a.innerHTML="";
+ [...q[2]].sort(()=>Math.random()-.5).forEach(x=>{let b=document.createElement("button");b.className="answer";b.textContent=x;b.onclick=()=>check(x,b);a.appendChild(b)})
+}
+function check(x,b){
+ if(locked)return;locked=true;
+ if(x===qs[i][1]){score+=10;b.style.background="#a7e89b";document.getElementById("feedback").textContent="آفرین! جواب درست است 🌟";document.getElementById("feedback").style.color="#299447"}
+ else{b.style.background="#ffb0b0";document.getElementById("feedback").textContent="اشکالی ندارد! جواب درست: "+qs[i][1]+" 💪";document.getElementById("feedback").style.color="#d94b4b"}
+ document.getElementById("score").textContent=score;document.getElementById("bar").style.width=((i+1)/qs.length*100)+"%";
+ setTimeout(()=>{i++;if(i<qs.length)showQ();else finish()},900)
+}
+function finish(){
+ document.getElementById("game").classList.add("hidden");document.getElementById("end").classList.remove("hidden");
+ document.getElementById("final").textContent=`امتیاز تو: ${score} از ${qs.length*10} ⭐`;
+}
+</script>
+</body>
+</html>
