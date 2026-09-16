@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>شکارچی الگوها - کلاس سوم</title>
+<style>
+*{box-sizing:border-box} body{margin:0;font-family:Tahoma,Arial,sans-serif;background:linear-gradient(135deg,#fff4a8,#b8f2e6);min-height:100vh;color:#333}
+.wrap{max-width:720px;margin:auto;padding:18px}.card{background:#fff;border-radius:28px;padding:22px;box-shadow:0 10px 30px #0002;text-align:center}
+h1{color:#ff6b6b;margin:4px 0 8px;font-size:30px}.designer{color:#7b61ff;font-weight:bold;margin-bottom:14px}
+.top{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:15px}.pill{background:#f1f3f5;border-radius:18px;padding:9px 14px;font-weight:bold}
+.progress{height:12px;background:#eee;border-radius:10px;overflow:hidden;margin:10px 0 20px}.bar{height:100%;background:#ffb703;width:0%;transition:.3s}
+.question{font-size:27px;font-weight:bold;margin:18px 0;line-height:1.7}.hint{font-size:16px;color:#777}
+.answers{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px}.ans{border:0;border-radius:20px;padding:17px;font-size:22px;font-weight:bold;background:#e7f5ff;cursor:pointer;box-shadow:0 4px 0 #9bd2f2}.ans:active{transform:translateY(3px);box-shadow:none}.ans:disabled{cursor:default;opacity:.8}
+.feedback{min-height:55px;font-size:21px;font-weight:bold;margin:16px 0}.next,.start{border:0;background:#7b61ff;color:white;border-radius:20px;padding:13px 28px;font-size:19px;font-weight:bold;cursor:pointer}
+.hide{display:none}.result h2{font-size:28px;color:#ff6b6b}.stars{font-size:42px;margin:10px}.small{font-size:14px;color:#777;margin-top:16px}
+@media(max-width:500px){.question{font-size:23px}.answers{grid-template-columns:1fr}.ans{padding:14px}}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+<div id="start">
+<h1>🌈 شکارچی الگوها 🌈</h1>
+<div class="designer">طراح: فاطمه رییسی</div>
+<p class="question">آماده‌ای الگوها را پیدا کنی؟ 🕵️‍♀️⭐</p>
+<p>با کلیک روی جواب درست امتیاز بگیر!</p>
+<button class="start" onclick="begin()">🚀 شروع بازی</button>
+</div>
+
+<div id="game" class="hide">
+<h1>🌟 شکارچی الگوها</h1><div class="designer">طراح: فاطمه رییسی</div>
+<div class="top"><div class="pill">سؤال <span id="num">1</span> از 10</div><div class="pill">⭐ امتیاز: <span id="score">0</span></div></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="question" id="q"></div><div class="hint">👆 روی جواب درست کلیک کن</div>
+<div class="answers" id="answers"></div>
+<div class="feedback" id="feedback"></div>
+<button class="next hide" id="next" onclick="nextQ()">سؤال بعدی ➜</button>
+</div>
+
+<div id="result" class="hide result">
+<h1>🎉 پایان بازی 🎉</h1><div class="stars">⭐⭐⭐⭐⭐</div>
+<h2 id="final"></h2><p id="message"></p>
+<button class="start" onclick="location.reload()">🔄 دوباره بازی می‌کنم</button>
+<p class="small">طراح: فاطمه رییسی</p>
+</div>
+</div></div>
+
+<script>
+const questions=[
+ {q:"۲، ۴، ۶، ۸، ؟", a:["۹","۱۰","۱۲","۱۴"], c:1},
+ {q:"۵، ۱۰، ۱۵، ۲۰، ؟", a:["۲۲","۲۴","۲۵","۳۰"], c:2},
+ {q:"۳، ۶، ۹، ۱۲، ؟", a:["۱۴","۱۵","۱۶","۱۸"], c:1},
+ {q:"۲۰، ۱۸، ۱۶، ۱۴، ؟", a:["۱۲","۱۳","۱۰","۸"], c:0},
+ {q:"⭐ 🔵 ⭐ 🔵 ⭐ ؟", a:["🔵","⭐","🟢","🔺"], c:0},
+ {q:"🔺 🔺 ⭐ 🔺 🔺 ؟", a:["🔵","⭐","🔺","🟢"], c:1},
+ {q:"۱، ۳، ۵، ۷، ؟", a:["۸","۹","۱۰","۱۱"], c:1},
+ {q:"۳۰، ۲۵، ۲۰، ۱۵، ؟", a:["۵","۱۰","۱۲","۱۵"], c:1},
+ {q:"۴، ۸، ۱۲، ۱۶، ؟", a:["۱۸","۱۹","۲۰","۲۲"], c:2},
+ {q:"🔴 🟡 🟢 🔴 🟡 ؟", a:["🔴","🟡","🟢","🔵"], c:2}
+];
+let i=0,score=0,locked=false;
+function begin(){document.getElementById('start').classList.add('hide');document.getElementById('game').classList.remove('hide');showQ();}
+function showQ(){
+ locked=false; document.getElementById('num').textContent=i+1; document.getElementById('score').textContent=score;
+ document.getElementById('bar').style.width=(i*10)+"%"; document.getElementById('q').textContent=questions[i].q;
+ const box=document.getElementById('answers');box.innerHTML='';
+ document.getElementById('feedback').textContent='';document.getElementById('next').classList.add('hide');
+ questions[i].a.forEach((x,n)=>{let b=document.createElement('button');b.className='ans';b.textContent=x;b.onclick=()=>answer(n,b);box.appendChild(b);});
+}
+function answer(n,b){
+ if(locked)return;locked=true;
+ document.querySelectorAll('.ans').forEach(x=>x.disabled=true);
+ const f=document.getElementById('feedback');
+ if(n===questions[i].c){score+=10;f.textContent="🎉 آفرین! جواب درست است! ⭐ +۱۰ امتیاز";b.style.background="#d3f9d8";}
+ else{f.textContent="💪 نزدیک بود! جواب درست را پیدا کن و ادامه بده.";b.style.background="#ffe3e3";}
+ document.getElementById('score').textContent=score;document.getElementById('bar').style.width=((i+1)*10)+"%";
+ document.getElementById('next').classList.remove('hide');
+}
+function nextQ(){i++;if(i<questions.length)showQ();else finish();}
+function finish(){
+ document.getElementById('game').classList.add('hide');document.getElementById('result').classList.remove('hide');
+ document.getElementById('final').textContent="امتیاز تو: "+score+" از ۱۰۰ 🏆";
+ document.getElementById('message').textContent=score===100?"🏆 فوق‌العاده بود! تو یک قهرمان الگوها هستی!":score>=70?"🌟 عالی بود! به همین شکل ادامه بده!":"👏 آفرین که بازی را کامل کردی! تمرین بیشتر یعنی موفقیت بیشتر!";
+}
+</script>
+</body></html>
